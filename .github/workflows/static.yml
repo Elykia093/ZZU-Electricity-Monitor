@@ -1,0 +1,143 @@
+name: Update 
+
+on:
+  # 定时任务（默认禁用，取消注释即可启用）
+  # GitHub Actions 定时可能有 10-60 分钟延迟
+  # schedule:
+  #   - cron: '0 16,20,0,4,8,12 * * *'  # UTC 时间，对应北京 0,4,8,12,16,20 点
+  workflow_dispatch:
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+env:
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    outputs:
+      changes: ${{ steps.check_changes.outputs.changes }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
+
+      - name: Set up Python 3.14
+        uses: actions/setup-python@v6
+        with:
+          python-version: 3.14
+          cache: 'pip'  # 启用依赖缓存，加速后续构建
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          pip install -r requirements.txt
+
+      - name: Clone page branch
+        run: |
+          # 克隆仓库（仅克隆最新版本）
+          git clone --depth=1 --branch=page https://github.com/${{ github.repository }}.git /tmp/repo
+          # 复制 data 文件夹内容到目标目录
+          cp -r /tmp/repo/data/* ./page/data/
+          # 清理临时文件
+          rm -rf /tmp/repo
+
+      - name: Decrypt tokens.enc if exists
+        env:
+          PASSWORD: ${{ secrets.PASSWORD }}
+        run: |
+          if [ -f "./page/data/tokens.enc" ]; then
+            echo "🔐 解密 tokens.enc ..."
+            python3 ./crypto.py decrypt || echo "⚠️ 解密失败但继续执行"
+          else
+            echo "ℹ️ 未检测到加密文件，跳过解密步骤"
+          fi
+          
+      - name: Run python script
+        env:
+          ACCOUNT: ${{ secrets.ACCOUNT }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          LIGHT_ROOM: ${{ secrets.LIGHT_ROOM }}
+          AC_ROOM: ${{ secrets.AC_ROOM }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SERVERCHAN_KEYS: ${{ secrets.SERVERCHAN_KEY }},${{ secrets.SERVERCHAN_KEY2 }},${{ secrets.SERVERCHAN_KEY3 }}
+          EMAIL: ${{ secrets.EMAIL }}
+          SMTP_CODE: ${{ secrets.SMTP_CODE }}
+          SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+        run: |
+          python3 ./main.py
+          python3 ./markdown.py >> $GITHUB_STEP_SUMMARY
+
+      - name: Encrypt tokens.json
+        env:
+          PASSWORD: ${{ secrets.PASSWORD }}
+        run: |
+          if [ -f "./page/data/tokens.json" ]; then
+            echo "🔐 加密 tokens.json ..."
+            python3 ./crypto.py encrypt
+            echo "🧹 删除原始 tokens.json ..."
+            rm -f ./page/data/tokens.json
+          else
+            echo "⚠️ 未找到 tokens.json，跳过加密步骤"
+          fi
+
+      - name: git config
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Commit changes
+        run: |
+          mkdir pages
+          cp -r ./page/data ./page/favicon.ico ./page/index.html ./page/style.css ./page/README.md  pages/
+          cd pages
+          git init
+          git add .
+          git commit -m "⏱️ $(date +"%Y年%m月%d日-%H时%M分") GitHub Actions定时更新"
+          git push --force https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:page
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: './page'
+  
+      - name: Delete Workflow Runs
+        uses: Mattraks/delete-workflow-runs@v2
+        with:
+          retain_days: 30
+          keep_minimum_runs: 6
+
+
+  deploy:
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+
+  keepalive-workflow:
+    name: Keepalive Workflow
+    if: ${{ always() }}
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Keep workflow active
+        uses: liskin/gh-workflow-keepalive@v1

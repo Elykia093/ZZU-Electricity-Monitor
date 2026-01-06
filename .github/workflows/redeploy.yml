@@ -1,0 +1,73 @@
+name: Redeploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+env:
+  TZ: Asia/Shanghai
+
+jobs:
+  redeploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Clone page branch
+        run: |
+          # 克隆 page 分支（仅克隆最新版本）
+          git clone --depth=1 --branch=page https://github.com/${{ github.repository }}.git /tmp/repo
+          # 复制 data 文件夹内容到目标目录
+          cp -r /tmp/repo/data/* ./page/data/
+          # 清理临时文件
+          rm -rf /tmp/repo
+
+      - name: git config
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Commit changes
+        run: |
+          mkdir pages
+          cp -r ./page/data ./page/favicon.ico ./page/index.html ./page/style.css ./page/README.md pages/
+          cd pages
+          git init
+          git add .
+          git commit -m "🔄 $(date +"%Y年%m月%d日-%H时%M分") 重新部署"
+          git push --force https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:page
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: './page'
+
+  deploy:
+    needs: redeploy
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
