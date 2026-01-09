@@ -30,6 +30,12 @@
                 <span class="brand-text">电量监控</span>
             </div>
             <div class="nav-actions">
+                <button id="room-query-btn" class="btn-icon" title="房间查询器">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        <polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                </button>
                 <button id="report-btn" class="btn-icon" title="年度总结">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -315,6 +321,95 @@
         </div>
     </div>
 
+    <!-- 房间查询器模态框 -->
+    <div id="room-query-modal" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="report-header">
+                <h2>🏠 宿舍房间查询器</h2>
+                <p class="report-date-range">快速查找您的房间编号，用于配置电量监控</p>
+                <button class="modal-close" id="room-modal-close">&times;</button>
+            </div>
+
+            <!-- 查询表单 -->
+            <div class="room-query-form">
+                <div class="query-row">
+                    <div class="query-field">
+                        <label for="area-select">区域</label>
+                        <div class="select-wrapper">
+                            <select id="area-select">
+                                <option value="">请选择区域</option>
+                                <option value="99">主校区</option>
+                                <option value="101">北校区</option>
+                                <option value="102">东校区</option>
+                                <option value="103">南校区</option>
+                                <option value="104">护理学院</option>
+                                <option value="105">洛阳校区</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="query-field">
+                        <label for="building-select">建筑</label>
+                        <div class="select-wrapper">
+                            <select id="building-select" disabled>
+                                <option value="">请选择建筑</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="query-field">
+                        <label for="unit-select">单元</label>
+                        <div class="select-wrapper">
+                            <select id="unit-select" disabled>
+                                <option value="">请选择单元</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="query-field">
+                        <label for="room-select">房间</label>
+                        <div class="select-wrapper">
+                            <select id="room-select" disabled>
+                                <option value="">请选择房间</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 结果显示 -->
+                <div class="query-result">
+                    <div class="result-card">
+                        <h3>💡 照明房间编号 (LIGHT_ROOM)</h3>
+                        <div class="result-value" id="light-room-result">请先选择房间</div>
+                        <button class="copy-btn" id="copy-light-btn" disabled>复制</button>
+                    </div>
+                    <div class="result-card">
+                        <h3>❄️ 空调房间编号 (AC_ROOM)</h3>
+                        <div class="result-value" id="ac-room-result">请先选择房间</div>
+                        <button class="copy-btn" id="copy-ac-btn" disabled>复制</button>
+                    </div>
+                </div>
+
+                <!-- 使用说明 -->
+                <div class="usage-guide">
+                    <h3>📋 使用说明</h3>
+                    <ol>
+                        <li>依次选择您的区域、建筑、单元和房间号</li>
+                        <li>系统会自动显示对应的照明和空调房间编号</li>
+                        <li>点击"复制"按钮可将编号复制到剪贴板</li>
+                        <li>将复制的编号配置到 GitHub Secrets 中的 LIGHT_ROOM 和 AC_ROOM</li>
+                    </ol>
+                    <div class="campus-codes">
+                        <h4>🏫 校区编号对照</h4>
+                        <p>99(主校区)、101(北校区)、102(东校区)、103(南校区)、104(护理学院)、105(洛阳校区)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="room.js"></script>
     <script src="main.js"></script>
 </body>
 </html>

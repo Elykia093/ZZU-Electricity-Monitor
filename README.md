@@ -7,6 +7,7 @@
 - 定时自动获取照明/空调电量
 - 低电量多渠道通知 (20+ 渠道)
 - 现代化前端，支持深色模式
+- 内置房间查询器，快速查找房间编号
 - AES-256-GCM 加密存储
 - GitHub Actions 全自动运行
 
@@ -24,8 +25,18 @@
 |--------|------|------|
 | `ACCOUNT` | 郑州大学统一认证账号 | 学号 |
 | `PASSWORD` | 统一认证密码 | 你的密码 |
-| `LIGHT_ROOM` | 照明电量房间号 | [获取方法](https://blog.elykia.cn/posts/22) |
-| `AC_ROOM` | 空调电量房间号 | [获取方法](https://blog.elykia.cn/posts/22) |
+| `LIGHT_ROOM` | 照明电量房间号 | 使用内置房间查询器获取 |
+| `AC_ROOM` | 空调电量房间号 | 使用内置房间查询器获取 |
+
+**获取房间号：**
+
+1. 访问 [宿舍电量监控](https://elykia093.github.io/ZZU-Electricity-Monitor/)
+2. 点击导航栏 **"房间查询"** 按钮
+3. 依次选择区域、建筑、单元、房间号
+4. 复制显示的照明和空调房间编号
+5. 分别配置到 `LIGHT_ROOM` 和 `AC_ROOM`
+
+支持主校区、北校区、东校区、南校区、护理学院、洛阳校区。
 
 ### 第三步：启用 Actions
 
@@ -255,6 +266,8 @@ ZZU-Electricity-Monitor/
 └── page/                # 前端页面
     ├── index.html       # 主页面，数据可视化
     ├── style.css        # 样式文件，支持深色模式
+    ├── main.js          # 主要 JavaScript 逻辑
+    ├── room.js          # 房间查询器数据和功能
     └── data/            # 电量数据（page 分支）
 ```
 
@@ -284,6 +297,15 @@ ZZU-Electricity-Monitor/
 ## 常见问题
 
 ### 如何获取房间号？
+
+**方法一：内置房间查询器（推荐）**
+
+1. 访问 [宿舍电量监控](https://elykia093.github.io/ZZU-Electricity-Monitor/)
+2. 点击导航栏 **"房间查询"** 按钮
+3. 依次选择区域、建筑、单元、房间号
+4. 复制显示的房间编号
+
+**方法二：手动查表**
 
 参考教程：[郑州大学宿舍电量监控：ZZU-Electricity-Monitor](https://blog.elykia.cn/posts/22)
 

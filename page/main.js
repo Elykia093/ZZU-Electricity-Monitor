@@ -1335,3 +1335,342 @@ window.addEventListener('resize', () => {
     if (chartMonthly) chartMonthly.resize();
     if (chartHeatmap) chartHeatmap.resize();
 });
+
+// ==================== 房间查询器功能 ====================
+
+// 房间查询器事件绑定
+document.addEventListener('DOMContentLoaded', function() {
+    // 绑定房间查询按钮
+    const roomFinderBtn = document.getElementById('room-query-btn');
+    const roomQueryModal = document.getElementById('room-query-modal');
+    const roomModalClose = document.getElementById('room-modal-close');
+
+    if (roomFinderBtn && roomQueryModal) {
+        roomFinderBtn.addEventListener('click', () => {
+            roomQueryModal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        });
+    }
+
+    if (roomModalClose && roomQueryModal) {
+        roomModalClose.addEventListener('click', () => {
+            roomQueryModal.style.display = 'none';
+            document.body.style.overflow = '';
+        });
+    }
+
+    // 点击模态框背景关闭
+    if (roomQueryModal) {
+        roomQueryModal.addEventListener('click', (e) => {
+            if (e.target === roomQueryModal) {
+                roomQueryModal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        });
+    }
+
+    // 房间查询器功能
+    const areaSelect = document.getElementById('area-select');
+    const buildingSelect = document.getElementById('building-select');
+    const unitSelect = document.getElementById('unit-select');
+    const roomSelect = document.getElementById('room-select');
+    const lightRoomResult = document.getElementById('light-room-result');
+    const acRoomResult = document.getElementById('ac-room-result');
+    const copyLightBtn = document.getElementById('copy-light-btn');
+    const copyAcBtn = document.getElementById('copy-ac-btn');
+
+    let currentLightRoomId = '';
+    let currentAcRoomId = '';
+
+    // 区域选择变化
+    if (areaSelect) {
+        areaSelect.addEventListener('change', function() {
+            const areaId = this.value;
+
+            // 重置后续选择器
+            buildingSelect.innerHTML = '<option value="">请选择建筑</option>';
+            unitSelect.innerHTML = '<option value="">请选择单元</option>';
+            roomSelect.innerHTML = '<option value="">请选择房间</option>';
+            buildingSelect.disabled = !areaId;
+            unitSelect.disabled = true;
+            roomSelect.disabled = true;
+
+            // 清空结果
+            clearResults();
+
+            if (areaId && window.roomData && window.roomData[areaId]) {
+                const buildings = window.roomData[areaId].buildings;
+                // 对建筑名称按柳荷菊松顺序，然后按数字排序
+                const sortedBuildingNames = Object.keys(buildings).sort((a, b) => {
+                    // 定义园区优先级：柳荷菊松
+                    const gardenOrder = ['柳园', '荷园', '菊园', '松园'];
+
+                    // 提取园区名称
+                    const gardenA = gardenOrder.find(garden => a.startsWith(garden)) || '';
+                    const gardenB = gardenOrder.find(garden => b.startsWith(garden)) || '';
+
+                    // 先按园区排序
+                    const gardenIndexA = gardenOrder.indexOf(gardenA);
+                    const gardenIndexB = gardenOrder.indexOf(gardenB);
+
+                    if (gardenIndexA !== gardenIndexB) {
+                        return gardenIndexA - gardenIndexB;
+                    }
+
+                    // 同一园区内按数字排序
+                    const matchA = a.match(/\d+/);
+                    const matchB = b.match(/\d+/);
+                    const numA = matchA ? parseInt(matchA[0]) : 0;
+                    const numB = matchB ? parseInt(matchB[0]) : 0;
+                    if (numA !== numB) return numA - numB;
+
+                    // 如果数字相同，按字符串排序
+                    return a.localeCompare(b);
+                });
+
+                sortedBuildingNames.forEach(buildingName => {
+                    const option = document.createElement('option');
+                    option.value = buildingName;
+                    option.textContent = buildingName;
+                    buildingSelect.appendChild(option);
+                });
+            }
+        });
+    }
+
+    // 建筑选择变化
+    if (buildingSelect) {
+        buildingSelect.addEventListener('change', function() {
+            const areaId = areaSelect.value;
+            const buildingName = this.value;
+
+            // 重置后续选择器
+            unitSelect.innerHTML = '<option value="">请选择单元</option>';
+            roomSelect.innerHTML = '<option value="">请选择房间</option>';
+            unitSelect.disabled = !buildingName;
+            roomSelect.disabled = true;
+
+            // 清空结果
+            clearResults();
+
+            if (areaId && buildingName && window.roomData && window.roomData[areaId].buildings[buildingName]) {
+                const units = window.roomData[areaId].buildings[buildingName].units;
+                // 对单元名称进行数字排序
+                const sortedUnitNames = Object.keys(units).sort((a, b) => {
+                    // 提取数字进行比较
+                    const matchA = a.match(/\d+/);
+                    const matchB = b.match(/\d+/);
+                    const numA = matchA ? parseInt(matchA[0]) : 0;
+                    const numB = matchB ? parseInt(matchB[0]) : 0;
+                    if (numA !== numB) return numA - numB;
+                    // 如果数字相同，按字符串排序
+                    return a.localeCompare(b);
+                });
+
+                sortedUnitNames.forEach(unitName => {
+                    const option = document.createElement('option');
+                    option.value = unitName;
+                    option.textContent = unitName;
+                    unitSelect.appendChild(option);
+                });
+            }
+        });
+    }
+
+    // 单元选择变化
+    if (unitSelect) {
+        unitSelect.addEventListener('change', function() {
+            const areaId = areaSelect.value;
+            const buildingName = buildingSelect.value;
+            const unitName = this.value;
+
+            // 重置房间选择器
+            roomSelect.innerHTML = '<option value="">请选择房间</option>';
+            roomSelect.disabled = !unitName;
+
+            // 清空结果
+            clearResults();
+
+            if (areaId && buildingName && unitName && window.roomData) {
+                const unit = window.roomData[areaId].buildings[buildingName].units[unitName];
+                if (unit && unit.rooms) {
+                    // 对房间号进行数字排序
+                    const sortedRooms = unit.rooms.slice().sort((a, b) => {
+                        // 提取数字进行比较
+                        const matchA = a.match(/\d+/);
+                        const matchB = b.match(/\d+/);
+                        const numA = matchA ? parseInt(matchA[0]) : 0;
+                        const numB = matchB ? parseInt(matchB[0]) : 0;
+                        if (numA !== numB) return numA - numB;
+                        // 如果数字相同，按字符串排序
+                        return a.localeCompare(b);
+                    });
+
+                    sortedRooms.forEach(room => {
+                        const option = document.createElement('option');
+                        option.value = room;
+                        option.textContent = room;
+                        roomSelect.appendChild(option);
+                    });
+                }
+            }
+        });
+    }
+
+    // 房间选择变化
+    if (roomSelect) {
+        roomSelect.addEventListener('change', function() {
+            const areaId = areaSelect.value;
+            const buildingName = buildingSelect.value;
+            const unitName = unitSelect.value;
+            const roomNumber = this.value;
+
+            if (areaId && buildingName && unitName && roomNumber && window.roomData) {
+                const building = window.roomData[areaId].buildings[buildingName];
+
+                // 查找照明房间ID (支持所有照明相关的单元类型)
+                let lightUnit = null;
+                const units = building.units;
+
+                // 特殊处理洛阳校区(105) - 使用"层"作为单元
+                if (areaId === '105') {
+                    // 洛阳校区每个房间只有一个ID，同时用作照明和空调
+                    const currentUnit = units[unitName];
+                    if (currentUnit) {
+                        const roomIndex = currentUnit.rooms.indexOf(roomNumber);
+                        if (roomIndex !== -1 && currentUnit.ids[roomIndex]) {
+                            const roomId = currentUnit.ids[roomIndex];
+                            currentLightRoomId = roomId;
+                            currentAcRoomId = roomId;
+                            lightRoomResult.textContent = roomId;
+                            acRoomResult.textContent = roomId;
+                            copyLightBtn.disabled = false;
+                            copyAcBtn.disabled = false;
+                        }
+                    }
+                } else {
+                    // 其他校区的正常处理逻辑
+                    // 优先查找照明相关单元
+                    for (const unitName in units) {
+                        if (unitName.includes('照明')) {
+                            lightUnit = units[unitName];
+                            break;
+                        }
+                    }
+
+                    // 如果没有找到照明单元，检查是否有"房间用电"单元
+                    if (!lightUnit && units['房间用电']) {
+                        lightUnit = units['房间用电'];
+                    }
+
+                    if (lightUnit) {
+                        const lightIndex = lightUnit.rooms.indexOf(roomNumber);
+                        if (lightIndex !== -1 && lightUnit.ids[lightIndex]) {
+                            currentLightRoomId = lightUnit.ids[lightIndex];
+                            lightRoomResult.textContent = currentLightRoomId;
+                            copyLightBtn.disabled = false;
+                        }
+                    }
+
+                    // 查找空调房间ID (支持所有空调相关的单元类型)
+                    let acUnit = null;
+
+                    // 优先查找空调相关单元
+                    for (const unitName in units) {
+                        if (unitName.includes('空调')) {
+                            acUnit = units[unitName];
+                            break;
+                        }
+                    }
+
+                    // 如果没有找到空调单元，检查是否有"房间用电"单元
+                    if (!acUnit && units['房间用电']) {
+                        acUnit = units['房间用电'];
+                    }
+
+                    if (acUnit) {
+                        const acIndex = acUnit.rooms.indexOf(roomNumber);
+                        if (acIndex !== -1 && acUnit.ids[acIndex]) {
+                            currentAcRoomId = acUnit.ids[acIndex];
+                            acRoomResult.textContent = currentAcRoomId;
+                            copyAcBtn.disabled = false;
+                        } else {
+                            acRoomResult.textContent = '该房间无空调编号';
+                            copyAcBtn.disabled = true;
+                        }
+                    } else {
+                        acRoomResult.textContent = '该房间无空调编号';
+                        copyAcBtn.disabled = true;
+                    }
+                }
+            } else {
+                clearResults();
+            }
+        });
+    }
+
+    // 复制按钮事件
+    if (copyLightBtn) {
+        copyLightBtn.addEventListener('click', function() {
+            if (currentLightRoomId) {
+                copyToClipboard(currentLightRoomId, '照明房间编号已复制');
+            }
+        });
+    }
+
+    if (copyAcBtn) {
+        copyAcBtn.addEventListener('click', function() {
+            if (currentAcRoomId) {
+                copyToClipboard(currentAcRoomId, '空调房间编号已复制');
+            }
+        });
+    }
+
+    // 工具函数
+    function clearResults() {
+        lightRoomResult.textContent = '请先选择房间';
+        acRoomResult.textContent = '请先选择房间';
+        copyLightBtn.disabled = true;
+        copyAcBtn.disabled = true;
+        currentLightRoomId = '';
+        currentAcRoomId = '';
+    }
+
+    function copyToClipboard(text, successMessage) {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(successMessage, 'success');
+            }).catch(err => {
+                console.error('复制失败:', err);
+                fallbackCopyTextToClipboard(text, successMessage);
+            });
+        } else {
+            fallbackCopyTextToClipboard(text, successMessage);
+        }
+    }
+
+    function fallbackCopyTextToClipboard(text, successMessage) {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        try {
+            const successful = document.execCommand('copy');
+            if (successful) {
+                showToast(successMessage, 'success');
+            } else {
+                showToast('复制失败，请手动复制', 'error');
+            }
+        } catch (err) {
+            console.error('复制失败:', err);
+            showToast('复制失败，请手动复制', 'error');
+        }
+
+        document.body.removeChild(textArea);
+    }
+});
