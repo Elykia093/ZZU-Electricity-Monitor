@@ -63,9 +63,9 @@
     workflow_dispatch:
   ```
 
-- **方式二：Pipedream 精确定时**（推荐，无延迟）
+- **方式二：精确定时触发**（推荐，无延迟）
 
-  参考下方 [Pipedream 精确定时](#pipedream-精确定时推荐) 配置。
+  参考下方 [精确定时触发（可选）](#精确定时触发可选) 配置。
 
 你也可以点击 **Run workflow** 手动触发运行。
 
@@ -349,26 +349,57 @@ schedule:
   - cron: '0 16,20,0,4,8,12 * * *'  # UTC 时间，对应北京时间 0,4,8,12,16,20 点
 ```
 
-### Pipedream 精确定时（推荐）
+### 精确定时触发（可选）
 
-GitHub Actions 定时任务存在延迟，如需精确定时可使用 [Pipedream](https://pipedream.com/)：
+GitHub Actions 定时任务存在延迟，如需精确定时可使用以下任一平台：
+
+| 平台 | 免费额度 | 自托管 | 特点 |
+|------|----------|--------|------|
+| [Zapier](https://zapier.com) | 100 次 | ❌ | 行业标杆，生态最成熟 |
+| [Make](https://make.com) | 1,000 次 | ❌ | 托管方案中最慷慨 |
+| [n8n](https://n8n.io) | 无限制 | ✅ | 完全自由，1000+ 集成 |
+| [IFTTT](https://ifttt.com) | 无限基础 | ❌ | 适合智能家居，限2个Applet |
+| [Power Automate](https://make.powerautomate.com) | 750 次 | ❌ | Office 365深度集成 |
+| [OttoKit](https://ottokit.com) | 250 次 | ❌ | 小企业友好 |
+| [Pipedream](https://pipedream.com) | 100 次 | ❌ | 开发者友好，支持代码 |
+| [Pabbly Connect](https://www.pabbly.com/connect) | 100 次 | ❌ | 含高级功能 |
+| [Integrately](https://integrately.com) | 100 次 | ❌ | 预制食谱 |
+| [Activepieces](https://www.activepieces.com) | 无限制 | ✅ | 开源，现代界面 |
+| [Huginn](https://github.com/huginn/huginn) | 无限制 | ✅ | 代理式，Ruby |
+| [Node-RED](https://nodered.org) | 无限制 | ✅ | IoT 专注 |
+
+**通用配置步骤（以 Make 为例）：**
 
 1. **创建 GitHub Token**
    - GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)
    - 勾选 `repo` 和 `workflow` 权限，生成并保存 Token
 
-2. **配置 Pipedream**
-   - 注册 Pipedream，创建新 Workflow
-   - 触发器选择 **Schedule**，设置 cron: `0 0,4,8,12,16,20 * * *`（时区选 Asia/Shanghai）
-   - 添加 **Send POST Request** 步骤：
+2. **配置 Make**
+   - 注册 Make，创建新 Scenario
+   - 触发器选择 **Webhooks** → **Custom webhook**，保存后获得 webhook URL
+   - 添加 **HTTP** 模块：
      - URL: `https://api.github.com/repos/你的用户名/ZZU-Electricity-Monitor/actions/workflows/static.yml/dispatches`
-     - Authorization: 选择 **Bearer Token**，填入你的 GitHub Token
-     - Headers: 添加 `Accept` = `application/vnd.github.v3+json`
-     - Body: `{"ref": "main"}`
+     - Method: `POST`
+     - Headers:
+       - `Content-Type` = `application/json`
+       - `Authorization` = `Bearer 你的GitHubToken`
+       - `Accept` = `application/vnd.github.v3+json`
+     - Body: `{"ref":"main"}`
 
-3. **部署并启用 Workflow**
+3. **配置定时**
+   - 点击 Webhooks 模块右侧的时钟图标
+   - 选择 **不激活**，点击 **添加定时器**
+   - 勾选 **高级调度**
+   - 添加 6 个时间段：
+     - **Item 1**: 从 `00:00` 至 `00:01`
+     - **Item 2**: 从 `04:00` 至 `04:01`
+     - **Item 3**: 从 `08:00` 至 `08:01`
+     - **Item 4**: 从 `12:00` 至 `12:01`
+     - **Item 5**: 从 `16:00` 至 `16:01`
+     - **Item 6**: 从 `20:00` 至 `20:01`
+   - 时区选择 `Asia/Shanghai`
 
-配置完成后，Pipedream 会在精确时间触发 GitHub Actions，无延迟。
+配置完成后，Make 会在精确时间触发 GitHub Actions，无延迟。
 
 ### 如何修改电量阈值？
 
