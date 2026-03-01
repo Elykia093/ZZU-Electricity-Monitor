@@ -1,0 +1,27 @@
+[
+  {
+    "time": "03-01 00:00:33",
+    "light_Balance": 311.1,
+    "ac_Balance": 42.6
+  },
+  {
+    "time": "03-01 04:00:48",
+    "light_Balance": 310.1,
+    "ac_Balance": 42.6
+  },
+  {
+    "time": "03-01 08:00:45",
+    "light_Balance": 310.1,
+    "ac_Balance": 42.6
+  },
+  {
+    "time": "03-01 12:00:46",
+    "light_Balance": 310.1,
+    "ac_Balance": 42.6
+  },
+  {
+    "time": "03-01 16:00:43",
+    "light_Balance": 309.1,
+    "ac_Balance": 42.6
+  }
+]
