@@ -1,0 +1,217 @@
+[
+  {
+    "time": "03-01 00:00:33",
+    "light_Balance": 311.1,
+    "ac_Balance": 42.6
+  },
+  {
+    "time": "03-01 04:00:48",
+    "light_Balance": 310.1,
+    "ac_Balance": 42.6
+  },
+  {
+    "time": "03-01 08:00:45",
+    "light_Balance": 310.1,
+    "ac_Balance": 42.6
+  },
+  {
+    "time": "03-01 12:00:46",
+    "light_Balance": 310.1,
+    "ac_Balance": 42.6
+  },
+  {
+    "time": "03-01 16:00:43",
+    "light_Balance": 309.1,
+    "ac_Balance": 42.6
+  },
+  {
+    "time": "03-01 20:00:45",
+    "light_Balance": 307.1,
+    "ac_Balance": 42.6
+  },
+  {
+    "time": "03-02 00:00:57",
+    "light_Balance": 303.1,
+    "ac_Balance": 42.6
+  },
+  {
+    "time": "03-02 04:00:41",
+    "light_Balance": 302.1,
+    "ac_Balance": 42.6
+  },
+  {
+    "time": "03-02 08:00:31",
+    "light_Balance": 301.1,
+    "ac_Balance": 42.6
+  },
+  {
+    "time": "03-02 12:00:31",
+    "light_Balance": 299.1,
+    "ac_Balance": 42.6
+  },
+  {
+    "time": "03-02 16:00:41",
+    "light_Balance": 295.1,
+    "ac_Balance": 42.6
+  },
+  {
+    "time": "03-02 20:01:28",
+    "light_Balance": 293.1,
+    "ac_Balance": 42.6
+  },
+  {
+    "time": "03-03 00:01:53",
+    "light_Balance": 288.1,
+    "ac_Balance": 42.5
+  },
+  {
+    "time": "03-03 04:01:30",
+    "light_Balance": 288.1,
+    "ac_Balance": 42.5
+  },
+  {
+    "time": "03-03 08:00:50",
+    "light_Balance": 287.1,
+    "ac_Balance": 42.5
+  },
+  {
+    "time": "03-03 12:00:46",
+    "light_Balance": 286.1,
+    "ac_Balance": 42.5
+  },
+  {
+    "time": "03-03 16:00:39",
+    "light_Balance": 283.1,
+    "ac_Balance": 42.5
+  },
+  {
+    "time": "03-03 20:01:12",
+    "light_Balance": 280.1,
+    "ac_Balance": 42.5
+  },
+  {
+    "time": "03-04 00:01:32",
+    "light_Balance": 276.1,
+    "ac_Balance": 42.5
+  },
+  {
+    "time": "03-04 04:01:31",
+    "light_Balance": 273.1,
+    "ac_Balance": 42.5
+  },
+  {
+    "time": "03-04 08:00:50",
+    "light_Balance": 273.1,
+    "ac_Balance": 42.5
+  },
+  {
+    "time": "03-04 12:00:28",
+    "light_Balance": 271.1,
+    "ac_Balance": 42.5
+  },
+  {
+    "time": "03-04 16:00:43",
+    "light_Balance": 267.1,
+    "ac_Balance": 42.5
+  },
+  {
+    "time": "03-04 20:01:09",
+    "light_Balance": 263.1,
+    "ac_Balance": 42.5
+  },
+  {
+    "time": "03-05 00:02:01",
+    "light_Balance": 259.1,
+    "ac_Balance": 42.4
+  },
+  {
+    "time": "03-05 04:01:44",
+    "light_Balance": 258.1,
+    "ac_Balance": 42.4
+  },
+  {
+    "time": "03-05 08:00:53",
+    "light_Balance": 258.1,
+    "ac_Balance": 42.4
+  },
+  {
+    "time": "03-05 12:00:33",
+    "light_Balance": 256.1,
+    "ac_Balance": 42.4
+  },
+  {
+    "time": "03-05 16:00:39",
+    "light_Balance": 251.1,
+    "ac_Balance": 42.4
+  },
+  {
+    "time": "03-05 20:01:24",
+    "light_Balance": 248.1,
+    "ac_Balance": 42.4
+  },
+  {
+    "time": "03-06 00:01:38",
+    "light_Balance": 244.1,
+    "ac_Balance": 42.3
+  },
+  {
+    "time": "03-06 04:01:21",
+    "light_Balance": 243.1,
+    "ac_Balance": 42.3
+  },
+  {
+    "time": "03-06 08:00:49",
+    "light_Balance": 242.1,
+    "ac_Balance": 42.3
+  },
+  {
+    "time": "03-06 12:00:35",
+    "light_Balance": 240.1,
+    "ac_Balance": 42.3
+  },
+  {
+    "time": "03-06 16:00:37",
+    "light_Balance": 237.1,
+    "ac_Balance": 42.3
+  },
+  {
+    "time": "03-06 20:01:05",
+    "light_Balance": 234.1,
+    "ac_Balance": 42.3
+  },
+  {
+    "time": "03-07 00:01:14",
+    "light_Balance": 231.1,
+    "ac_Balance": 42.3
+  },
+  {
+    "time": "03-07 04:01:24",
+    "light_Balance": 230.1,
+    "ac_Balance": 42.3
+  },
+  {
+    "time": "03-07 08:00:45",
+    "light_Balance": 229.1,
+    "ac_Balance": 42.3
+  },
+  {
+    "time": "03-07 12:00:39",
+    "light_Balance": 228.1,
+    "ac_Balance": 42.3
+  },
+  {
+    "time": "03-07 16:00:40",
+    "light_Balance": 223.1,
+    "ac_Balance": 42.3
+  },
+  {
+    "time": "03-07 20:00:46",
+    "light_Balance": 218.1,
+    "ac_Balance": 42.3
+  },
+  {
+    "time": "03-08 00:00:30",
+    "light_Balance": 214.1,
+    "ac_Balance": 42.2
+  }
+]
